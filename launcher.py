@@ -36,6 +36,12 @@ GAMES = [
         "color": NEON_MAGENTA,
         "key": "2",
     },
+    {
+        "name": "CYBER REACTION",
+        "desc": "Fast-paced reaction arcade",
+        "color": NEON_YELLOW,
+        "key": "3",
+    },
 ]
 
 
@@ -69,6 +75,10 @@ class Launcher:
             from games.cyber_dash.game import DashGame
             game = DashGame(self.screen, self.clock)
             result = game.run()
+        elif index == 2:
+            from games.reaction.game import ReactionGame
+            game = ReactionGame(self.screen, self.clock)
+            result = game.run()
         else:
             return
 
@@ -96,6 +106,9 @@ class Launcher:
                 return
             if key == pygame.K_2:
                 self._launch_game(1)
+                return
+            if key == pygame.K_3:
+                self._launch_game(2)
                 return
 
             # Arrow navigation
@@ -130,7 +143,7 @@ class Launcher:
         # Glow behind title
         title_text = "CYBER ARCADE"
         title_surf = self._font_title.render(title_text, True, NEON_CYAN)
-        title_rect = title_surf.get_rect(center=(SCREEN_WIDTH // 2, 65))
+        title_rect = title_surf.get_rect(center=(SCREEN_WIDTH // 2, 55))
 
         glow = pygame.Surface((title_rect.width + 60, title_rect.height + 20))
         glow.set_alpha(25 + int(10 * math.sin(self._tick * 0.05)))
@@ -141,11 +154,11 @@ class Launcher:
 
         # Subtitle
         sub = self._font_md.render("SELECT A GAME", True, (100, 110, 140))
-        sub_rect = sub.get_rect(center=(SCREEN_WIDTH // 2, 110))
+        sub_rect = sub.get_rect(center=(SCREEN_WIDTH // 2, 95))
         self.screen.blit(sub, sub_rect)
 
         # Decorative line
-        line_y = 135
+        line_y = 115
         pygame.draw.line(self.screen, NEON_CYAN, (80, line_y), (SCREEN_WIDTH - 80, line_y), 1)
         # Glow on line
         line_glow = pygame.Surface((SCREEN_WIDTH - 160, 4))
@@ -155,9 +168,9 @@ class Launcher:
 
         # ── Game Cards ──────────────────────────────────────
         card_w = 460
-        card_h = 110
-        start_y = 165
-        spacing = 25
+        card_h = 95
+        start_y = 135
+        spacing = 15
 
         for i, game in enumerate(GAMES):
             y = start_y + i * (card_h + spacing)
@@ -206,12 +219,12 @@ class Launcher:
             # Game name
             name_color = game["color"] if is_selected else NEON_CYAN
             name_surf = self._font_lg.render(game["name"], True, name_color)
-            name_rect = name_surf.get_rect(topleft=(x + 65, y + 18))
+            name_rect = name_surf.get_rect(topleft=(x + 65, y + 14))
             self.screen.blit(name_surf, name_rect)
 
             # Description
             desc_surf = self._font_sm.render(game["desc"], True, (120, 125, 150))
-            desc_rect = desc_surf.get_rect(topleft=(x + 65, y + 62))
+            desc_rect = desc_surf.get_rect(topleft=(x + 65, y + 54))
             self.screen.blit(desc_surf, desc_rect)
 
             # Selection arrow
@@ -227,7 +240,7 @@ class Launcher:
                 pygame.draw.polygon(self.screen, game["color"], points)
 
         # ── Footer ──────────────────────────────────────────
-        footer_y = SCREEN_HEIGHT - 40
+        footer_y = SCREEN_HEIGHT - 35
         hint = self._font_sm.render(
             "↑↓ Navigate  |  ENTER to play  |  ESC to quit",
             True, (70, 75, 95)
