@@ -4,13 +4,13 @@ Centralizes all tunable values shared across games.
 """
 
 # Grid (used by Snake game)
-GRID_WIDTH = 20   # number of cells horizontally
-GRID_HEIGHT = 16  # number of cells vertically
+GRID_WIDTH = 25   # number of cells horizontally
+GRID_HEIGHT = 20  # number of cells vertically
 CELL_SIZE = 32    # pixels per cell
 
 # Screen
-SCREEN_WIDTH = GRID_WIDTH * CELL_SIZE   # 640
-SCREEN_HEIGHT = GRID_HEIGHT * CELL_SIZE  # 512
+SCREEN_WIDTH = GRID_WIDTH * CELL_SIZE   # 800
+SCREEN_HEIGHT = GRID_HEIGHT * CELL_SIZE  # 640
 
 # Neon palette (RGB) — shared across all games
 NEON_CYAN = (0, 255, 255)
