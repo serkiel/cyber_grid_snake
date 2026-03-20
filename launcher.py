@@ -42,6 +42,12 @@ GAMES = [
         "color": NEON_YELLOW,
         "key": "3",
     },
+    {
+        "name": "DATA DROP",
+        "desc": "Match-3 dropping blocks puzzle",
+        "color": NEON_CYAN,
+        "key": "4",
+    },
 ]
 
 
@@ -79,6 +85,10 @@ class Launcher:
             from games.reaction.game import ReactionGame
             game = ReactionGame(self.screen, self.clock)
             result = game.run()
+        elif index == 3:
+            from games.data_drop.game import DropGame
+            game = DropGame(self.screen, self.clock)
+            result = game.run()
         else:
             return
 
@@ -109,6 +119,9 @@ class Launcher:
                 return
             if key == pygame.K_3:
                 self._launch_game(2)
+                return
+            if key == pygame.K_4:
+                self._launch_game(3)
                 return
 
             # Arrow navigation
@@ -167,10 +180,11 @@ class Launcher:
         self.screen.blit(line_glow, (80, line_y - 1))
 
         # ── Game Cards ──────────────────────────────────────
-        card_w = 460
+        card_w = 560
         card_h = 95
-        start_y = 135
         spacing = 15
+        total_cards_h = len(GAMES) * card_h + (len(GAMES) - 1) * spacing
+        start_y = (SCREEN_HEIGHT - total_cards_h) // 2 + 20
 
         for i, game in enumerate(GAMES):
             y = start_y + i * (card_h + spacing)
