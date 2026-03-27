@@ -20,6 +20,7 @@ from config import (
     NEON_GREEN,
     NEON_YELLOW,
     NEON_ORANGE,
+    NEON_PINK,
 )
 
 # Game registry — each game has a name, description, color, and factory
@@ -47,6 +48,12 @@ GAMES = [
         "desc": "Match-3 dropping blocks puzzle",
         "color": NEON_CYAN,
         "key": "4",
+    },
+    {
+        "name": "CYBER BREAKOUT",
+        "desc": "Arcade classic brick breaker",
+        "color": NEON_PINK,
+        "key": "5",
     },
 ]
 
@@ -89,6 +96,10 @@ class Launcher:
             from games.data_drop.game import DropGame
             game = DropGame(self.screen, self.clock)
             result = game.run()
+        elif index == 4:
+            from games.cyber_breakout.game import BreakoutGame
+            game = BreakoutGame(self.screen, self.clock)
+            result = game.run()
         else:
             return
 
@@ -122,6 +133,9 @@ class Launcher:
                 return
             if key == pygame.K_4:
                 self._launch_game(3)
+                return
+            if key == pygame.K_5:
+                self._launch_game(4)
                 return
 
             # Arrow navigation
@@ -181,8 +195,8 @@ class Launcher:
 
         # ── Game Cards ──────────────────────────────────────
         card_w = 560
-        card_h = 95
-        spacing = 15
+        card_h = 80
+        spacing = 10
         total_cards_h = len(GAMES) * card_h + (len(GAMES) - 1) * spacing
         start_y = (SCREEN_HEIGHT - total_cards_h) // 2 + 20
 
@@ -233,12 +247,12 @@ class Launcher:
             # Game name
             name_color = game["color"] if is_selected else NEON_CYAN
             name_surf = self._font_lg.render(game["name"], True, name_color)
-            name_rect = name_surf.get_rect(topleft=(x + 65, y + 14))
+            name_rect = name_surf.get_rect(topleft=(x + 65, y + 10))
             self.screen.blit(name_surf, name_rect)
 
             # Description
             desc_surf = self._font_sm.render(game["desc"], True, (120, 125, 150))
-            desc_rect = desc_surf.get_rect(topleft=(x + 65, y + 54))
+            desc_rect = desc_surf.get_rect(topleft=(x + 65, y + 50))
             self.screen.blit(desc_surf, desc_rect)
 
             # Selection arrow
