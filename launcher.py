@@ -4,6 +4,7 @@ Displays a collection of games and lets the player select one to play.
 """
 
 import math
+import time
 import pygame
 import sys, os
 
@@ -55,6 +56,12 @@ GAMES = [
         "color": NEON_PINK,
         "key": "5",
     },
+    {
+        "name": "CYBER PONG",
+        "desc": "Neon Pong versus the machine",
+        "color": NEON_ORANGE,
+        "key": "6",
+    },
 ]
 
 
@@ -100,6 +107,10 @@ class Launcher:
             from games.cyber_breakout.game import BreakoutGame
             game = BreakoutGame(self.screen, self.clock)
             result = game.run()
+        elif index == 5:
+            from games.cyber_pong.game import PongGame
+            game = PongGame(self.screen, self.clock)
+            result = game.run()
         else:
             return
 
@@ -137,11 +148,14 @@ class Launcher:
             if key == pygame.K_5:
                 self._launch_game(4)
                 return
+            if key == pygame.K_6:
+                self._launch_game(5)
+                return
 
-            # Arrow navigation
-            if key in (pygame.K_UP, pygame.K_w):
+            # Arrow navigation (up/down/left/right all navigate)
+            if key in (pygame.K_UP, pygame.K_w, pygame.K_LEFT, pygame.K_a):
                 self.selected = (self.selected - 1) % len(GAMES)
-            elif key in (pygame.K_DOWN, pygame.K_s):
+            elif key in (pygame.K_DOWN, pygame.K_s, pygame.K_RIGHT, pygame.K_d):
                 self.selected = (self.selected + 1) % len(GAMES)
             elif key in (pygame.K_RETURN, pygame.K_KP_ENTER, pygame.K_SPACE):
                 self._launch_game(self.selected)
@@ -195,10 +209,10 @@ class Launcher:
 
         # ── Game Cards ──────────────────────────────────────
         card_w = 560
-        card_h = 80
-        spacing = 10
+        card_h = 72
+        spacing = 7
         total_cards_h = len(GAMES) * card_h + (len(GAMES) - 1) * spacing
-        start_y = (SCREEN_HEIGHT - total_cards_h) // 2 + 20
+        start_y = max(125, (SCREEN_HEIGHT - total_cards_h) // 2 + 20)
 
         for i, game in enumerate(GAMES):
             y = start_y + i * (card_h + spacing)
@@ -247,12 +261,12 @@ class Launcher:
             # Game name
             name_color = game["color"] if is_selected else NEON_CYAN
             name_surf = self._font_lg.render(game["name"], True, name_color)
-            name_rect = name_surf.get_rect(topleft=(x + 65, y + 10))
+            name_rect = name_surf.get_rect(topleft=(x + 65, y + 8))
             self.screen.blit(name_surf, name_rect)
 
             # Description
             desc_surf = self._font_sm.render(game["desc"], True, (120, 125, 150))
-            desc_rect = desc_surf.get_rect(topleft=(x + 65, y + 50))
+            desc_rect = desc_surf.get_rect(topleft=(x + 65, y + 46))
             self.screen.blit(desc_surf, desc_rect)
 
             # Selection arrow
@@ -268,18 +282,38 @@ class Launcher:
                 pygame.draw.polygon(self.screen, game["color"], points)
 
         # ── Footer ──────────────────────────────────────────
-        footer_y = SCREEN_HEIGHT - 35
+        footer_y = SCREEN_HEIGHT - 30
+
+        # Decorative top line of footer
+        foot_line_y = SCREEN_HEIGHT - 45
+        pygame.draw.line(self.screen, NEON_CYAN,
+                         (80, foot_line_y), (SCREEN_WIDTH - 80, foot_line_y), 1)
+        foot_glow = pygame.Surface((SCREEN_WIDTH - 160, 3))
+        foot_glow.set_alpha(30)
+        foot_glow.fill(NEON_CYAN)
+        self.screen.blit(foot_glow, (80, foot_line_y - 1))
+
         hint = self._font_sm.render(
-            "↑↓ Navigate  |  ENTER to play  |  ESC to quit",
+            "↑↓ ←→  Navigate  |  ENTER to play  |  ESC to quit",
             True, (70, 75, 95)
         )
         hint_rect = hint.get_rect(center=(SCREEN_WIDTH // 2, footer_y))
         self.screen.blit(hint, hint_rect)
 
-        # Version / branding
-        ver = self._font_sm.render("v1.0", True, (40, 45, 60))
-        ver_rect = ver.get_rect(bottomright=(SCREEN_WIDTH - 10, SCREEN_HEIGHT - 8))
-        self.screen.blit(ver, ver_rect)
+        # Animated neon version badge
+        badge_alpha = int(160 + 60 * math.sin(self._tick * 0.04))
+        ver_surf = self._font_sm.render("v1.0", True, NEON_CYAN)
+        ver_surf.set_alpha(badge_alpha)
+        ver_rect = ver_surf.get_rect(bottomright=(SCREEN_WIDTH - 12, SCREEN_HEIGHT - 8))
+        # Badge background pill
+        pill = pygame.Surface((ver_surf.get_width() + 14, ver_surf.get_height() + 6))
+        pill.set_alpha(60)
+        pill.fill(NEON_CYAN)
+        self.screen.blit(pill, (ver_rect.x - 7, ver_rect.y - 3))
+        pygame.draw.rect(self.screen, NEON_CYAN,
+                         (ver_rect.x - 7, ver_rect.y - 3,
+                          ver_surf.get_width() + 14, ver_surf.get_height() + 6), 1)
+        self.screen.blit(ver_surf, ver_rect)
 
         pygame.display.flip()
 
