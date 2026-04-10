@@ -6,8 +6,9 @@ class DropRenderer:
     def __init__(self, screen):
         self.screen = screen
         self.font_title = pygame.font.Font(None, 80)
-        self.font_md = pygame.font.Font(None, 36)
-        self.font_sm = pygame.font.Font(None, 24)
+        self.font_lg  = pygame.font.Font(None, 60)
+        self.font_md  = pygame.font.Font(None, 36)
+        self.font_sm  = pygame.font.Font(None, 26)
         
         # Grid layout
         self.cell_size = 40
@@ -72,8 +73,9 @@ class DropRenderer:
         self.screen.blit(sub, srect)
         
         # Controls
-        ctrl = self.font_sm.render("L/R: Move | UP: Cycle Colors | DOWN: Faster Drop", True, (100, 110, 140))
-        crect = ctrl.get_rect(center=(SCREEN_WIDTH//2, SCREEN_HEIGHT - 30))
+        ctrl = self.font_sm.render("L/R: Move  |  UP: Cycle  |  DOWN: Faster  |  ESC: Menu",
+                                    True, (100, 110, 140))
+        crect = ctrl.get_rect(center=(SCREEN_WIDTH//2, SCREEN_HEIGHT - 28))
         self.screen.blit(ctrl, crect)
 
     def draw_game(self, grid, piece, matching_cells, score, tick):
@@ -131,20 +133,40 @@ class DropRenderer:
         self.screen.blit(score_surf, (20, 20))
 
     def draw_game_over(self, score, tick):
-        # Overlay
+        cx = SCREEN_WIDTH  // 2
+        cy = SCREEN_HEIGHT // 2
+        color = (255, 55, 55)
+
+        # Full-screen dim
         overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
-        overlay.fill((0, 0, 0, 180))
+        overlay.fill((0, 0, 0, 155))
         self.screen.blit(overlay, (0, 0))
-        
-        tit = self.font_title.render("SYSTEM FAILURE", True, (255, 50, 50))
-        trect = tit.get_rect(center=(SCREEN_WIDTH//2, SCREEN_HEIGHT//2 - 40))
+
+        # Box
+        box_w, box_h = 500, 210
+        box_x = cx - box_w // 2
+        box_y = cy - box_h // 2
+
+        glow_surf = pygame.Surface((box_w + 16, box_h + 16), pygame.SRCALPHA)
+        glow_surf.fill((*color, 22))
+        self.screen.blit(glow_surf, (box_x - 8, box_y - 8))
+
+        box_surf = pygame.Surface((box_w, box_h), pygame.SRCALPHA)
+        box_surf.fill((6, 8, 18, 220))
+        self.screen.blit(box_surf, (box_x, box_y))
+        pygame.draw.rect(self.screen, color, (box_x, box_y, box_w, box_h), 2, border_radius=6)
+
+        tit = self.font_lg.render("SYSTEM FAILURE", True, color)
+        trect = tit.get_rect(center=(cx, box_y + 52))
         self.screen.blit(tit, trect)
-        
-        sc = self.font_md.render(f"FINAL THREAT ELIMINATED: {score}", True, NEON_GREEN)
-        screct = sc.get_rect(center=(SCREEN_WIDTH//2, SCREEN_HEIGHT//2 + 20))
-        self.screen.blit(sc, screct)
-        
-        pulse = abs(math.sin(tick * 0.05)) * 255
-        sub = self.font_sm.render("Press SPACE to Restart | ESC to Menu", True, (int(pulse), int(pulse), int(pulse)))
-        srect = sub.get_rect(center=(SCREEN_WIDTH//2, SCREEN_HEIGHT//2 + 70))
-        self.screen.blit(sub, srect)
+
+        sc = self.font_md.render(f"Final Score: {score}", True, NEON_GREEN)
+        sc_rect = sc.get_rect(center=(cx, box_y + 112))
+        self.screen.blit(sc, sc_rect)
+
+        # Pulsing hint
+        alpha = int(140 + 115 * ((math.sin(tick * 0.09) + 1) / 2))
+        sub = self.font_sm.render("SPACE to restart  |  ESC to menu", True, (155, 160, 185))
+        sub.set_alpha(alpha)
+        sub_rect = sub.get_rect(center=(cx, box_y + 175))
+        self.screen.blit(sub, sub_rect)

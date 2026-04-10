@@ -72,9 +72,10 @@ class SnakeGame:
             key = event.key
 
             if key == pygame.K_ESCAPE:
-                self.return_to_menu = True
-                self.running = False
-                return
+                if self.state not in (STATE_GAME_OVER,):
+                    self.return_to_menu = True
+                    self.running = False
+                    return
 
             if self.state == STATE_TITLE:
                 if key in (pygame.K_RETURN, pygame.K_KP_ENTER):
@@ -98,6 +99,10 @@ class SnakeGame:
             if self.state == STATE_GAME_OVER:
                 if key == pygame.K_SPACE:
                     self._restart()
+                elif key == pygame.K_ESCAPE:
+                    self.return_to_menu = True
+                    self.running = False
+                    return
 
     def _start_game(self) -> None:
         self.snake.reset()
@@ -156,7 +161,7 @@ class SnakeGame:
             self.renderer.draw_pause_overlay()
 
         if self.state == STATE_GAME_OVER:
-            self.renderer.draw_game_over(self.score, self.high_score)
+            self.renderer.draw_game_over(self.score, self.high_score, self._tick)
 
         pygame.display.flip()
 
