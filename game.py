@@ -42,7 +42,7 @@ class Game:
 
     def __init__(self) -> None:
         pygame.init()
-        self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+        self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.RESIZABLE | pygame.SCALED)
         pygame.display.set_caption("Cyber-Grid Snake")
         self.clock = pygame.time.Clock()
         self.renderer = GridRenderer(self.screen)
@@ -69,6 +69,10 @@ class Game:
 
             key = event.key
 
+            if key == pygame.K_F11:
+                pygame.display.toggle_fullscreen()
+                continue
+                
             # ESC quits from any state
             if key == pygame.K_ESCAPE:
                 self.running = False

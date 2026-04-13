@@ -70,7 +70,7 @@ class Launcher:
 
     def __init__(self) -> None:
         pygame.init()
-        self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+        self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.RESIZABLE | pygame.SCALED)
         pygame.display.set_caption("Cyber Arcade")
         self.clock = pygame.time.Clock()
 
@@ -84,6 +84,13 @@ class Launcher:
         self.running = True
         self._tick = 0
         self._bg_offset = 0.0
+
+        try:
+            self.sfx_nav = pygame.mixer.Sound("nav.wav")
+            self.sfx_sel = pygame.mixer.Sound("select.wav")
+        except:
+            self.sfx_nav = None
+            self.sfx_sel = None
 
     def _launch_game(self, index: int) -> None:
         """Launch the selected game."""
@@ -128,6 +135,10 @@ class Launcher:
 
             key = event.key
 
+            if key == pygame.K_F11:
+                pygame.display.toggle_fullscreen()
+                continue
+                
             if key == pygame.K_ESCAPE:
                 self.running = False
                 return
@@ -155,9 +166,12 @@ class Launcher:
             # Arrow navigation (up/down/left/right all navigate)
             if key in (pygame.K_UP, pygame.K_w, pygame.K_LEFT, pygame.K_a):
                 self.selected = (self.selected - 1) % len(GAMES)
+                if getattr(self, 'sfx_nav', None): self.sfx_nav.play()
             elif key in (pygame.K_DOWN, pygame.K_s, pygame.K_RIGHT, pygame.K_d):
                 self.selected = (self.selected + 1) % len(GAMES)
+                if getattr(self, 'sfx_nav', None): self.sfx_nav.play()
             elif key in (pygame.K_RETURN, pygame.K_KP_ENTER, pygame.K_SPACE):
+                if getattr(self, 'sfx_sel', None): self.sfx_sel.play()
                 self._launch_game(self.selected)
 
     def _draw(self) -> None:
