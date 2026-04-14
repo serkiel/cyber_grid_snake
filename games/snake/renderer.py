@@ -116,7 +116,7 @@ class SnakeRenderer:
         bar_h = 30
         # Dark banner
         bar_surf = pygame.Surface((SCREEN_WIDTH, bar_h))
-        bar_surf.set_alpha(180)
+        bar_surf.set_alpha(255)
         bar_surf.fill((8, 10, 20))
         self.surface.blit(bar_surf, (0, 0))
         # Bottom border glow

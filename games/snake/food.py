@@ -27,7 +27,7 @@ class Food:
         empty = [
             (c, r)
             for c in range(GRID_WIDTH)
-            for r in range(GRID_HEIGHT)
+            for r in range(1, GRID_HEIGHT)
             if (c, r) not in snake_body
         ]
         if not empty:

@@ -73,7 +73,7 @@ class Snake:
         head_col, head_row = self.head()
         new_head = (head_col + dx, head_row + dy)
 
-        if not (0 <= new_head[0] < GRID_WIDTH and 0 <= new_head[1] < GRID_HEIGHT):
+        if not (0 <= new_head[0] < GRID_WIDTH and 1 <= new_head[1] < GRID_HEIGHT):
             return None
 
         body_without_tail = self.body[:-1] if self.grow_pending <= 0 else self.body
