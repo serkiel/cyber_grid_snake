@@ -58,6 +58,11 @@ class SnakeGame:
         self.state = STATE_TITLE
         self._tick = 0
 
+        try:
+            self.sfx_eat = pygame.mixer.Sound("eat.wav")
+        except:
+            self.sfx_eat = None
+
     # ── Event handling ──────────────────────────────────────────
 
     def _handle_events(self) -> None:
@@ -130,6 +135,7 @@ class SnakeGame:
             return
 
         if self.food.cell() and new_head == self.food.cell():
+            if getattr(self, 'sfx_eat', None): self.sfx_eat.play()
             self.snake.grow(1)
             self.score += 1
             self.current_fps = min(self.current_fps + FPS_INCREMENT, MAX_FPS)
