@@ -48,6 +48,13 @@ class DashGame:
         self._tick = 0
         self._death_timer = 0  # delay before showing game over
 
+        try:
+            self.sfx_crash = pygame.mixer.Sound("crash.wav")
+            self.sfx_nav = pygame.mixer.Sound("nav.wav")
+        except:
+            self.sfx_crash = None
+            self.sfx_nav = None
+
     # ── Event handling ──────────────────────────────────────
 
     def _handle_events(self) -> None:
@@ -74,6 +81,7 @@ class DashGame:
 
             if self.state == STATE_PLAYING:
                 if key in (pygame.K_SPACE, pygame.K_UP, pygame.K_w):
+                    if getattr(self, 'sfx_nav', None) and self.player.on_ground: self.sfx_nav.play()
                     self.player.jump()
                 continue
 
@@ -158,6 +166,7 @@ class DashGame:
                 spike['w'] - 10, spike['h'] - 8
             )
             if player_rect.colliderect(spike_rect):
+                if getattr(self, 'sfx_crash', None): self.sfx_crash.play()
                 self.player.alive = False
                 self._death_timer = 0
                 return
@@ -175,6 +184,7 @@ class DashGame:
                     self.player.vy = 0
                     self.player.on_ground = True
                 else:
+                    if getattr(self, 'sfx_crash', None): self.sfx_crash.play()
                     self.player.alive = False
                     self._death_timer = 0
                     return

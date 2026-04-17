@@ -32,6 +32,14 @@ class ReactionGame:
         self.bg_offset = 0
         self.spawn_timer = 0
         self.base_speed = 8
+        try:
+            self.sfx_eat = pygame.mixer.Sound("eat.wav")
+            self.sfx_nav = pygame.mixer.Sound("nav.wav")
+            self.sfx_crash = pygame.mixer.Sound("crash.wav")
+        except:
+            self.sfx_eat = None
+            self.sfx_nav = None
+            self.sfx_crash = None
         
     def _start_game(self):
         self.player.reset()
@@ -137,13 +145,16 @@ class ReactionGame:
                 
                 if item.type == ITEM_FOOD:
                     if self.player.state == "EAT":
+                        if getattr(self, 'sfx_eat', None): self.sfx_eat.play()
                         self.score += 10
                     else:
                         pass # Missed food
                 elif item.type == ITEM_OBSTACLE:
                     if self.player.state == "DODGE":
+                        if getattr(self, 'sfx_nav', None): self.sfx_nav.play()
                         self.score += 5
                     else:
+                        if getattr(self, 'sfx_crash', None): self.sfx_crash.play()
                         self.player.hurt()
 
     def _draw(self):

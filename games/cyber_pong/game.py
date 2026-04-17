@@ -242,6 +242,13 @@ class PongGame:
         self._particles: list[Particle] = []
         self._bg_offset = 0.0
 
+        try:
+            self.sfx_nav = pygame.mixer.Sound("nav.wav")
+            self.sfx_crash = pygame.mixer.Sound("crash.wav")
+        except:
+            self.sfx_nav = None
+            self.sfx_crash = None
+
         self.reset_game()
 
     # ────────────────────────────────── setup ──
@@ -337,12 +344,15 @@ class PongGame:
         result = self.ball.update(self.player, self.ai)
 
         if result == "hit_player":
+            if getattr(self, 'sfx_nav', None): self.sfx_nav.play()
             self._spawn_particles(self.player.x + self.player.w, self.ball.y, NEON_ORANGE)
             self._rally += 1
         elif result == "hit_ai":
+            if getattr(self, 'sfx_nav', None): self.sfx_nav.play()
             self._spawn_particles(self.ai.x, self.ball.y, NEON_MAGENTA)
             self._rally += 1
         elif result == "player_scored":
+            if getattr(self, 'sfx_crash', None): self.sfx_crash.play()
             self._spawn_particles(SCREEN_WIDTH - 20, self.ball.y, NEON_CYAN, 30)
             self.player_score += 1
             self._rally = 0
@@ -352,6 +362,7 @@ class PongGame:
             else:
                 self.ball.reset(direction=-1)     # serve toward AI
         elif result == "ai_scored":
+            if getattr(self, 'sfx_crash', None): self.sfx_crash.play()
             self._spawn_particles(20, self.ball.y, NEON_MAGENTA, 30)
             self.ai_score += 1
             self._rally = 0

@@ -128,6 +128,15 @@ class BreakoutGame:
         self._tick   = 0
         self._bg_offset = 0.0
 
+        try:
+            self.sfx_eat = pygame.mixer.Sound("eat.wav")
+            self.sfx_nav = pygame.mixer.Sound("nav.wav")
+            self.sfx_crash = pygame.mixer.Sound("crash.wav")
+        except:
+            self.sfx_eat = None
+            self.sfx_nav = None
+            self.sfx_crash = None
+
         self.reset_game()
 
     # ── Reset ─────────────────────────────────────────────────────
@@ -205,6 +214,7 @@ class BreakoutGame:
                                 self.ball.radius * 2, self.ball.radius * 2)
 
         if ball_rect.colliderect(paddle_rect) and self.ball.dy > 0:
+            if getattr(self, 'sfx_nav', None): self.sfx_nav.play()
             self.ball.dy = -self.ball.dy
             hit_pos = (self.ball.x - self.paddle.x) / self.paddle.width
             self.ball.dx = 10 * (hit_pos - 0.5)
@@ -213,6 +223,7 @@ class BreakoutGame:
         # Block collision
         for block in self.blocks[:]:
             if ball_rect.colliderect(block.rect):
+                if getattr(self, 'sfx_eat', None): self.sfx_eat.play()
                 self.blocks.remove(block)
                 self.score += 10 * self.level
                 self.ball.dy = -self.ball.dy
@@ -220,6 +231,7 @@ class BreakoutGame:
 
         # Lost ball
         if self.ball.y + self.ball.radius >= SCREEN_HEIGHT:
+            if getattr(self, 'sfx_crash', None): self.sfx_crash.play()
             self.lives -= 1
             if self.lives <= 0:
                 self.state = STATE_GAME_OVER

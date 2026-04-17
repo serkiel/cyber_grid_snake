@@ -38,6 +38,14 @@ class DropGame:
         
         self.matching_cells = set()
         self.match_timer = 0
+        try:
+            self.sfx_eat = pygame.mixer.Sound("eat.wav")
+            self.sfx_nav = pygame.mixer.Sound("nav.wav")
+            self.sfx_crash = pygame.mixer.Sound("crash.wav")
+        except:
+            self.sfx_eat = None
+            self.sfx_nav = None
+            self.sfx_crash = None
         
     def _start_game(self):
         self.score = 0
@@ -54,6 +62,7 @@ class DropGame:
         c = COLS // 2
         # If top center is blocked, game over
         if self.grid[0][c] is not None or self.grid[1][c] is not None or self.grid[2][c] is not None:
+            if getattr(self, 'sfx_crash', None): self.sfx_crash.play()
             self.state = STATE_GAME_OVER
             return
             
@@ -87,14 +96,18 @@ class DropGame:
                     self._start_game()
             elif self.state == STATE_PLAYING:
                 if key == pygame.K_LEFT:
+                    if getattr(self, 'sfx_nav', None): self.sfx_nav.play()
                     self._move_piece(-1)
                 elif key == pygame.K_RIGHT:
+                    if getattr(self, 'sfx_nav', None): self.sfx_nav.play()
                     self._move_piece(1)
                 elif key == pygame.K_UP:
+                    if getattr(self, 'sfx_nav', None): self.sfx_nav.play()
                     self._cycle_colors()
                 elif key == pygame.K_DOWN:
                     self.fall_speed = 5 # Fast drop
                 elif key == pygame.K_SPACE:
+                    if getattr(self, 'sfx_nav', None): self.sfx_nav.play()
                     self._hard_drop()
             elif self.state == STATE_GAME_OVER:
                 if key == pygame.K_SPACE:
@@ -219,6 +232,7 @@ class DropGame:
                         kr -= 1; kc += 1
 
         if len(matched) > 0:
+            if getattr(self, 'sfx_eat', None): self.sfx_eat.play()
             self.matching_cells = matched
             self.match_timer = 20 # frames to show match animation
             self.state = STATE_MATCHING

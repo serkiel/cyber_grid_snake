@@ -1,0 +1,24 @@
+MONDAY, APR 13: Scalable Resolution Framework
+•	Implemented dynamic window resizing and full-screen toggling across the entire arcade launcher.
+•	Updated the central view manager (`launcher.py`, `game.py`) to seamlessly adapt to aspect ratio and dimension changes.
+•	Refactored hardcoded UI position logic into proportion-based calculations to prevent visual overlap when the window bounds change.
+
+TUESDAY, APR 14: Snake Game Polish & Viewport Corrections
+•	Revisited the core Snake game structures (`food.py`, `renderer.py`, `snake.py`) to enhance input responsiveness and scaling.
+•	Identified block obstruction issues where the active gameplay grid would fall underneath the overhead HUD during tighter window constraints.
+•	Corrected the renderer's mathematical offset mapping so the playable grid remains distinctly separated from the header scoreboards.
+
+WEDNESDAY, APR 15: Audio Synthesis & Sound Design System
+•	Instead of relying on external audio assets, created standalone python scripts (`gen_eat_sfx.py`, `gen_crash_sfx.py`, `gen_sfx.py`).
+•	Leveraged the built-in `wave` and `struct` libraries to mathematically synthesize byte arrays for pure, retro oscillating soundwaves.
+•	Successfully generated primitive but punchy arcade audio files including `nav.wav`, `eat.wav`, `crash.wav`, and `select.wav`.
+
+THURSDAY, APR 16: Core Audio Integration
+•	Integrated the `pygame.mixer` instances directly into the `Snake` game loop instance state.
+•	Linked logical game flow triggers to the newly generated audio (e.g. food consumption triggering `eat.wav` and border collisions triggering `crash.wav`).
+•	Resolved an edge case in the audio buffer memory during rapid sequence firing.
+
+FRIDAY, APR 17: Collection-Wide Audio Scaling & Release
+•	Scaled the proven audio trigger framework outwardly to initialize and map corresponding SFXs across the rest of the collection.
+•	Implemented context-specific sound calls for ball striking in Cyber Breakout, obstacle dodging in Reaction, block matching in Data Drop, jumps in Cyber Dash, and score tallies in Cyber Pong.
+•	Drafted the weekly operations report and evenly distributed commits across the Monday–Friday development cycle prior to pushing to main.
