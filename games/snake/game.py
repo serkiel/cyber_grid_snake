@@ -12,7 +12,10 @@ GAME_OVER – Show score; press SPACE to restart.
 
 import pygame
 import sys, os
+import time
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+from telemetry_db import TelemetryDB
 from config import (
     SCREEN_WIDTH,
     SCREEN_HEIGHT,
@@ -114,6 +117,7 @@ class SnakeGame:
         self.food = Food(self.snake.body)
         self.score = 0
         self.current_fps = START_FPS
+        self.session_start = time.time()
         self.state = STATE_PLAYING
 
     def _restart(self) -> None:
@@ -121,6 +125,7 @@ class SnakeGame:
         self.food = Food(self.snake.body)
         self.score = 0
         self.current_fps = START_FPS
+        self.session_start = time.time()
         self.state = STATE_PLAYING
 
     def _update(self) -> None:
@@ -131,6 +136,11 @@ class SnakeGame:
         if new_head is None:
             if self.score > self.high_score:
                 self.high_score = self.score
+            
+            end_time = time.time()
+            duration = int(end_time - getattr(self, 'session_start', end_time))
+            TelemetryDB.log_game("Cyber-Grid Snake", getattr(self, 'session_start', end_time), end_time, duration, self.score)
+            
             self.state = STATE_GAME_OVER
             return
 

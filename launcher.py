@@ -11,6 +11,8 @@ import sys, os
 # Ensure project root is on path
 sys.path.insert(0, os.path.dirname(__file__))
 
+from telemetry_db import TelemetryDB
+
 from config import (
     SCREEN_WIDTH,
     SCREEN_HEIGHT,
@@ -70,6 +72,7 @@ class Launcher:
 
     def __init__(self) -> None:
         pygame.init()
+        TelemetryDB.setup()
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.RESIZABLE | pygame.SCALED)
         pygame.display.set_caption("Cyber Arcade")
         self.clock = pygame.time.Clock()

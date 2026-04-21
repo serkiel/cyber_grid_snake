@@ -2,9 +2,11 @@ import pygame
 import math
 import sys
 import os
+import time
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 from config import SCREEN_WIDTH, SCREEN_HEIGHT, BG_DARK, NEON_PINK, NEON_CYAN, NEON_GREEN, NEON_YELLOW, NEON_MAGENTA
+from telemetry_db import TelemetryDB
 
 STATE_TITLE    = "TITLE"
 STATE_PLAYING  = "PLAYING"
@@ -147,6 +149,7 @@ class BreakoutGame:
         self.score  = 0
         self.lives  = 3
         self.level  = 1
+        self.session_start = time.time()
         self.create_blocks()
 
     def create_blocks(self):
@@ -234,6 +237,9 @@ class BreakoutGame:
             if getattr(self, 'sfx_crash', None): self.sfx_crash.play()
             self.lives -= 1
             if self.lives <= 0:
+                end_time = time.time()
+                duration = int(end_time - getattr(self, 'session_start', end_time))
+                TelemetryDB.log_game("Cyber Breakout", getattr(self, 'session_start', end_time), end_time, duration, self.score)
                 self.state = STATE_GAME_OVER
             else:
                 self.ball   = Ball(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 65)
@@ -243,6 +249,9 @@ class BreakoutGame:
         if len(self.blocks) == 0:
             self.level += 1
             if self.level > 5:
+                end_time = time.time()
+                duration = int(end_time - getattr(self, 'session_start', end_time))
+                TelemetryDB.log_game("Cyber Breakout", getattr(self, 'session_start', end_time), end_time, duration, self.score)
                 self.state = STATE_VICTORY
             else:
                 self.ball   = Ball(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 65)

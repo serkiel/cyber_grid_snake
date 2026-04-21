@@ -9,9 +9,11 @@ import math
 import random
 import sys
 import os
+import time
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 from config import SCREEN_WIDTH, SCREEN_HEIGHT, BG_DARK, NEON_ORANGE, NEON_CYAN, NEON_MAGENTA, NEON_GREEN, NEON_YELLOW
+from telemetry_db import TelemetryDB
 
 FPS = 60
 
@@ -260,6 +262,7 @@ class PongGame:
         self.ai_score     = 0
         self._rally       = 0    # track consecutive hits for stat display
         self._flash_timer = 0    # white-flash on score
+        self.session_start = time.time()
 
     # ────────────────────────────────── helpers ──
     def _spawn_particles(self, x, y, color, n=18):
@@ -358,6 +361,9 @@ class PongGame:
             self._rally = 0
             self._flash_timer = 18
             if self.player_score >= WIN_SCORE:
+                end_time = time.time()
+                duration = int(end_time - getattr(self, 'session_start', end_time))
+                TelemetryDB.log_game("Cyber Pong", getattr(self, 'session_start', end_time), end_time, duration, self.player_score)
                 self.state = STATE_WIN
             else:
                 self.ball.reset(direction=-1)     # serve toward AI
@@ -368,6 +374,9 @@ class PongGame:
             self._rally = 0
             self._flash_timer = 18
             if self.ai_score >= WIN_SCORE:
+                end_time = time.time()
+                duration = int(end_time - getattr(self, 'session_start', end_time))
+                TelemetryDB.log_game("Cyber Pong", getattr(self, 'session_start', end_time), end_time, duration, self.player_score)
                 self.state = STATE_LOSE
             else:
                 self.ball.reset(direction=1)      # serve toward player

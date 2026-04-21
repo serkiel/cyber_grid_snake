@@ -5,6 +5,8 @@ import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 from config import SCREEN_WIDTH, SCREEN_HEIGHT, NEON_CYAN, NEON_MAGENTA, NEON_GREEN, NEON_ORANGE, NEON_YELLOW
 from games.data_drop.renderer import DropRenderer
+from telemetry_db import TelemetryDB
+import time
 
 STATE_TITLE = "TITLE"
 STATE_PLAYING = "PLAYING"
@@ -55,6 +57,7 @@ class DropGame:
         self.base_fall_speed = 40
         self.fall_speed = self.base_fall_speed
         self.fall_timer = 0
+        self.session_start = time.time()
         self.state = STATE_PLAYING
         self._spawn_piece()
 
@@ -63,6 +66,11 @@ class DropGame:
         # If top center is blocked, game over
         if self.grid[0][c] is not None or self.grid[1][c] is not None or self.grid[2][c] is not None:
             if getattr(self, 'sfx_crash', None): self.sfx_crash.play()
+            
+            end_time = time.time()
+            duration = int(end_time - getattr(self, 'session_start', end_time))
+            TelemetryDB.log_game("Data Drop", getattr(self, 'session_start', end_time), end_time, duration, self.score)
+            
             self.state = STATE_GAME_OVER
             return
             
