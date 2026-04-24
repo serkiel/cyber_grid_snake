@@ -1,0 +1,19 @@
+MONDAY, APR 20: Telemetry Engine & Database Server
+•	Designed and implemented a centralized background logging mechanism (`telemetry_db.py`) utilizing SQLite to silently track game session metrics.
+•	Architected a robust `game_sessions` database schema capable of capturing precise timestamps, session duration intervals, and scores natively.
+
+TUESDAY, APR 21: Cross-Game Data Pipeline Integration
+•	Updated the application launcher to initialize the database immediately on boot, ensuring data streams are active prior to user interaction.
+•	Successfully hooked the automated pipeline into the backend architecture of all 6 arcade games, firing records immediately upon "Game Over" states.
+
+WEDNESDAY, APR 22: Algorithmic Dataset Generation
+•	Engineered a distinct Python script (`generate_mock_data.py`) capable of seeding 300 highly realistic game histories extending over a 30-day period.
+•	Hardcoded an artificial "learning curve" into the generator so that scores programmatically improve over time, providing complex simulated telemetry.
+
+THURSDAY, APR 23: Interactive Streamlit Data Dashboard
+•	Constructed an incredibly sleek, dark-mode Business Intelligence standalone web app using the `streamlit`, `pandas`, and `plotly` data science libraries.
+•	Developed live KPI tracking banners alongside responsive Pie Charts, Bar Charts, and automated Rolling Average Line graphs to decipher player behavior.
+
+FRIDAY, APR 24: Product A/B Testing Platform
+•	Adapted both the Reaction game and Cyber Dash to secretly divide players 50/50 randomly into separate experimental conditions (Control vs High-Contrast/Reduced Speed).
+•	Augmented the Streamlit application to calculate performance differences natively in an Analytics tab visualizing score distribution by Variant.

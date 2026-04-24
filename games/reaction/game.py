@@ -1,8 +1,10 @@
 import pygame
 import random
 import sys, os
+import time
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+from telemetry_db import TelemetryDB
 from config import SCREEN_WIDTH, SCREEN_HEIGHT
 from games.reaction.entities import Player, Item, ITEM_FOOD, ITEM_OBSTACLE
 from games.reaction.renderer import ReactionRenderer
@@ -49,6 +51,8 @@ class ReactionGame:
         self.bg_offset = 0
         self.base_speed = 8
         self.spawn_timer = 60
+        self.session_start = time.time()
+        self.ab_variant = random.choice(["Control", "Neon_High_Contrast"])
         self.state = STATE_PLAYING
         
     def _handle_events(self):
@@ -100,6 +104,11 @@ class ReactionGame:
             item_type = ITEM_FOOD if random.random() < 0.5 else ITEM_OBSTACLE
             
             speed = self.base_speed + random.uniform(-1, 2)
+            
+            # A/B Test Impact
+            if getattr(self, 'ab_variant', 'Control') == "Neon_High_Contrast":
+                speed *= 1.10 # 10% faster to simulate distinct movement
+                
             self.items.append(Item(spawn_x, spawn_y, item_type, speed))
             
             # Time until next spawn
@@ -118,6 +127,10 @@ class ReactionGame:
         self.items = [i for i in self.items if i.active and i.x > -50]
         
         if self.player.lives <= 0 and self.player.state_timer <= 0:
+            end_time = time.time()
+            duration = int(end_time - getattr(self, 'session_start', end_time))
+            ab_var = getattr(self, 'ab_variant', 'Control')
+            TelemetryDB.log_game("Cyber Reaction", getattr(self, 'session_start', end_time), end_time, duration, self.score, ab_var)
             self.state = STATE_GAME_OVER
 
     def _check_collisions(self):

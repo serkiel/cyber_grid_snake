@@ -11,7 +11,11 @@ GAME_OVER – Show score; SPACE to retry, ESC to menu.
 
 import pygame
 import sys, os
+import time
+import random
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+from telemetry_db import TelemetryDB
 from config import SCREEN_WIDTH, SCREEN_HEIGHT
 
 from games.cyber_dash.player import Player
@@ -103,6 +107,10 @@ class DashGame:
         self.distance = 0.0
         self.score = 0
         self.attempt = 1
+        self.session_start = time.time()
+        self.ab_variant = random.choice(["Control", "Slower_Start"])
+        if self.ab_variant == "Slower_Start":
+            self.obstacles.scroll_speed = max(4.0, self.obstacles.scroll_speed * 0.9) # 10% slower initially
         self.state = STATE_PLAYING
 
     def _restart(self) -> None:
@@ -112,6 +120,7 @@ class DashGame:
         self.distance = 0.0
         self.score = 0
         self.attempt += 1
+        self.session_start = time.time()
         self.state = STATE_PLAYING
         self._death_timer = 0
 
@@ -126,6 +135,13 @@ class DashGame:
             if self._death_timer > 30:  # half-second delay at 60fps
                 if self.score > self.high_score:
                     self.high_score = self.score
+                
+                if self.state != STATE_GAME_OVER:
+                    end_time = time.time()
+                    duration = int(end_time - getattr(self, 'session_start', end_time))
+                    ab_var = getattr(self, 'ab_variant', 'Control')
+                    TelemetryDB.log_game("Cyber Dash", getattr(self, 'session_start', end_time), end_time, duration, self.score, ab_var)
+                    
                 self.state = STATE_GAME_OVER
             return
 
@@ -147,6 +163,13 @@ class DashGame:
         if self.score >= 100:
             if self.score > self.high_score:
                 self.high_score = self.score
+                
+            if self.state != STATE_GAME_OVER:
+                end_time = time.time()
+                duration = int(end_time - getattr(self, 'session_start', end_time))
+                ab_var = getattr(self, 'ab_variant', 'Control')
+                TelemetryDB.log_game("Cyber Dash", getattr(self, 'session_start', end_time), end_time, duration, self.score, ab_var)
+
             self.state = STATE_GAME_OVER
             return
 
