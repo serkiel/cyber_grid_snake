@@ -23,11 +23,23 @@ class TelemetryDB:
             )
         ''')
         
+        # Add columns safely for older databases
+        for col, col_type in [
+            ('ab_variant', 'TEXT DEFAULT "Control"'),
+            ('event_x', 'INTEGER'),
+            ('event_y', 'INTEGER')
+        ]:
+            try:
+                cursor.execute(f"ALTER TABLE game_sessions ADD COLUMN {col} {col_type}")
+            except sqlite3.OperationalError:
+                pass
+
+        
         conn.commit()
         conn.close()
 
     @staticmethod
-    def log_game(game_name: str, start_time: float, end_time: float, duration_seconds: int, score: int):
+    def log_game(game_name: str, start_time: float, end_time: float, duration_seconds: int, score: int, ab_variant: str = "Control", event_x: int = None, event_y: int = None):
         """Log a completed game session into the database."""
         try:
             conn = sqlite3.connect(DB_PATH)
@@ -38,9 +50,9 @@ class TelemetryDB:
             end_iso = datetime.datetime.fromtimestamp(end_time).isoformat()
             
             cursor.execute('''
-                INSERT INTO game_sessions (game_name, start_time, end_time, duration_seconds, score)
-                VALUES (?, ?, ?, ?, ?)
-            ''', (game_name, start_iso, end_iso, duration_seconds, int(score)))
+                INSERT INTO game_sessions (game_name, start_time, end_time, duration_seconds, score, ab_variant, event_x, event_y)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (game_name, start_iso, end_iso, duration_seconds, int(score), ab_variant, event_x, event_y))
             
             conn.commit()
             conn.close()
