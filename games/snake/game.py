@@ -139,7 +139,8 @@ class SnakeGame:
             
             end_time = time.time()
             duration = int(end_time - getattr(self, 'session_start', end_time))
-            TelemetryDB.log_game("Cyber-Grid Snake", getattr(self, 'session_start', end_time), end_time, duration, self.score)
+            head_x, head_y = self.snake.head()
+            TelemetryDB.log_game("Cyber-Grid Snake", getattr(self, 'session_start', end_time), end_time, duration, self.score, event_x=head_x, event_y=head_y)
             
             self.state = STATE_GAME_OVER
             return
