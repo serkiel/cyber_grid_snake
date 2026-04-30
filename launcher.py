@@ -341,3 +341,7 @@ class Launcher:
             self._draw()
             self.clock.tick(60)
         pygame.quit()
+
+if __name__ == "__main__":
+    app = Launcher()
+    app.run()
