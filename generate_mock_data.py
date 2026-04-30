@@ -27,10 +27,19 @@ def generate_data():
             end_time TEXT NOT NULL,
             duration_seconds INTEGER NOT NULL,
             score INTEGER NOT NULL,
-            ab_variant TEXT NOT NULL DEFAULT 'Control'
+            ab_variant TEXT NOT NULL DEFAULT 'Control',
+            event_x INTEGER,
+            event_y INTEGER
         )
     ''')
     
+    # Safe add columns for existing databases
+    for col, col_type in [('event_x', 'INTEGER'), ('event_y', 'INTEGER')]:
+        try:
+            cursor.execute(f"ALTER TABLE game_sessions ADD COLUMN {col} {col_type}")
+        except sqlite3.OperationalError:
+            pass
+            
     now = datetime.datetime.now()
     records = []
     
@@ -68,19 +77,24 @@ def generate_data():
             if ab_variant == "Slower_Start":
                 final_score = min(100, int(final_score * 1.15))
 
+        event_x = random.randint(5, 35) if game["name"] == "Cyber-Grid Snake" else None
+        event_y = random.randint(5, 25) if game["name"] == "Cyber-Grid Snake" else None
+
         records.append((
             game["name"],
             start_time.isoformat(),
             end_time.isoformat(),
             duration,
             final_score,
-            ab_variant
+            ab_variant,
+            event_x,
+            event_y
         ))
     
     # Insert records
     cursor.executemany('''
-        INSERT INTO game_sessions (game_name, start_time, end_time, duration_seconds, score, ab_variant)
-        VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO game_sessions (game_name, start_time, end_time, duration_seconds, score, ab_variant, event_x, event_y)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     ''', records)
     
     conn.commit()

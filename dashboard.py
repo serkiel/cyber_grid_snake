@@ -3,6 +3,8 @@ import pandas as pd
 import sqlite3
 import os
 import plotly.express as px
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
 
 # Configuration
 st.set_page_config(page_title="Cyber Arcade Analytics", page_icon="🎮", layout="wide")
@@ -37,7 +39,7 @@ df = load_data()
 if df.empty:
     st.warning("⚠️ No game data found! Please play some games first, or run `python generate_mock_data.py` to populate test data.")
 else:
-    tab1, tab2 = st.tabs(["📊 Global Overview", "🧪 Product A/B Testing"])
+    tab1, tab2, tab3, tab4, tab5 = st.tabs(["📊 Global Overview", "🧪 Product A/B Testing", "🗺️ Spatial Heatmaps", "🤖 Predictive ML", "📄 Export Reports"])
     
     with tab1:
         # ── KPI Row ──────────────────────────────────────────────────
@@ -159,3 +161,90 @@ else:
             )
             fig_ab.update_layout(template="plotly_dark")
             st.plotly_chart(fig_ab, use_container_width=True)
+
+    with tab3:
+        st.subheader("🗺️ Player Spatial Analytics")
+        st.markdown("Analyze where players most frequently meet their demise in-game.")
+        
+        # Filter for data that has spatial tracking
+        if 'event_x' not in df.columns or 'event_y' not in df.columns:
+            st.info("No spatial data columns found in the database yet. Run generate_mock_data.py or play a game to initialize them!")
+        else:
+            spatial_df = df.dropna(subset=['event_x', 'event_y'])
+            if spatial_df.empty:
+                st.info("No spatial data recorded yet! Play a game of Snake to generate death coordinates.")
+            else:
+                spatial_game = st.selectbox("Select Game for Heatmap:", spatial_df["game_name"].unique())
+                plot_df = spatial_df[spatial_df["game_name"] == spatial_game]
+                
+                fig_heat = px.density_heatmap(
+                    plot_df, 
+                    x="event_x", 
+                    y="event_y", 
+                    title=f"Death Heatmap for {spatial_game}",
+                    nbinsx=20, nbinsy=20,
+                    color_continuous_scale="Viridis"
+                )
+                fig_heat.update_layout(template="plotly_dark")
+                st.plotly_chart(fig_heat, use_container_width=True)
+            
+    with tab4:
+        st.subheader("🤖 Player Clustering Model (K-Means)")
+        st.markdown("Using Unsupervised Machine Learning to group play sessions based on Score and Duration.")
+        
+        if len(df) < 10:
+            st.warning("Not enough data to run ML models reliably. Need at least 10 sessions.")
+        else:
+            ml_game = st.selectbox("Select Game for Clustering:", df["game_name"].unique())
+            ml_df = df[df["game_name"] == ml_game].copy()
+            
+            if len(ml_df) < 5:
+                st.warning("Need more sessions for this specific game.")
+            else:
+                num_clusters = st.slider("Select Number of Player Segments (K)", min_value=2, max_value=5, value=3)
+                
+                features = ml_df[['duration_seconds', 'score']]
+                scaler = StandardScaler()
+                scaled_features = scaler.fit_transform(features)
+                
+                kmeans = KMeans(n_clusters=num_clusters, random_state=42, n_init='auto')
+                ml_df['cluster'] = kmeans.fit_predict(scaled_features)
+                ml_df['cluster'] = ml_df['cluster'].astype(str)
+                
+                fig_ml = px.scatter(
+                    ml_df, 
+                    x="duration_seconds", 
+                    y="score", 
+                    color="cluster",
+                    title=f"Player Segmentation for {ml_game}",
+                    hover_data=['start_time']
+                )
+                fig_ml.update_layout(template="plotly_dark")
+                st.plotly_chart(fig_ml, use_container_width=True)
+
+    with tab5:
+        st.subheader("📄 Export Automated Reports")
+        st.markdown("Download the raw telemetry or a summarized weekly report.")
+        
+        csv_data = df.to_csv(index=False).encode('utf-8')
+        st.download_button(
+            label="Download Full Telemetry (CSV)",
+            data=csv_data,
+            file_name="cyber_arcade_telemetry.csv",
+            mime="text/csv",
+        )
+        
+        report_df = df.groupby('game_name').agg(
+            total_plays=('session_id', 'count'),
+            avg_score=('score', 'mean'),
+            max_score=('score', 'max'),
+            total_play_time_mins=('duration_seconds', lambda x: x.sum() / 60)
+        ).reset_index()
+        
+        report_csv = report_df.to_csv(index=False).encode('utf-8')
+        st.download_button(
+            label="Download Aggregated Summary Report (CSV)",
+            data=report_csv,
+            file_name="cyber_arcade_summary_report.csv",
+            mime="text/csv",
+        )
